@@ -8,6 +8,8 @@ License:	MIT
 URL:		https://github.com/%{modname}/%{modname}
 Source0:	https://pypi.python.org/packages/source/p/%{modname}/%{modname}-%{version}.tar.gz
 Source1:        coveragerc
+Source2:        https://raw.githubusercontent.com/pexpect/pexpect/master/tools/display-sighandlers.py
+Source3:        https://raw.githubusercontent.com/pexpect/pexpect/master/tools/display-terminalinfo.py
 
 BuildArch:	noarch
 Provides:	pexpect = %{version}-%{release}
@@ -76,6 +78,9 @@ pty module.
 %autosetup -n %{modname}-%{version}
 sed -i -e 1i"# -*- encoding: utf-8 -*-" setup.py
 cp -p %{SOURCE1} .coveragerc
+rm -rf tools/
+mkdir tools/
+cp -p %{SOURCE2} %{SOURCE3} tools/
 #sed -i "s/0.1/10.0/g" tests/test_misc.py
 
 rm -rf %{py3dir}
@@ -104,6 +109,9 @@ pushd %{py3dir}
 popd
 
 %check
+./tools/display-sighandlers.py
+./tools/display-terminalinfo.py
+
 py.test-2 --verbose
 
 pushd %{py3dir}
