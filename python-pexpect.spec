@@ -2,18 +2,15 @@
 
 Summary:	Unicode-aware Pure Python Expect-like module
 Name:		python-%{modname}
-Version:	4.0
+Version:	4.0.1
 Release:	1%{?dist}
 License:	MIT
 URL:		https://github.com/%{modname}/%{modname}
-Source0:	https://pypi.python.org/packages/source/p/%{modname}/%{modname}-%{version}.tar.gz
-Source1:        coveragerc
-Source2:        https://raw.githubusercontent.com/pexpect/pexpect/master/tools/display-sighandlers.py
-Source3:        https://raw.githubusercontent.com/pexpect/pexpect/master/tools/display-terminalinfo.py
+Source0:	https://github.com/%{modname}/%{modname}/archive/%{version}/%{modname}-%{version}.tar.gz
 
-# https://github.com/pexpect/pexpect/pull/274
-Patch0:         0001-Encode-command-line-args-for-unicode-mode-spawn.patch
-Patch1:         pexpect-4.0-disable-some-tests.patch
+Patch0:         pexpect-4.0.1-disable-some-tests.patch
+Patch1:         0001-disable-max-canon-tests-retain-file-contents.patch
+Patch2:         0002-2-new-tools-display-fpathconf.maxcanon-.py.patch
 
 BuildArch:	noarch
 BuildRequires:  git-core
@@ -81,11 +78,7 @@ pty module.
 
 %prep
 %autosetup -n %{modname}-%{version} -S git
-sed -i -e 1i"# -*- encoding: utf-8 -*-" setup.py
-cp -p %{SOURCE1} .coveragerc
-rm -rf tools/
-mkdir tools/
-cp -p %{SOURCE2} %{SOURCE3} tools/
+chmod +x ./tools/*
 #sed -i "s/0.1/10.0/g" tests/test_misc.py
 
 rm -rf %{py3dir}
@@ -116,12 +109,16 @@ popd
 %check
 export PYTHONIOENCODING=UTF-8
 export LC_ALL="en_US.UTF-8"
-./tools/display-sighandlers.py
-./tools/display-terminalinfo.py
 
+%{__python2} ./tools/display-sighandlers.py
+%{__python2} ./tools/display-terminalinfo.py
+PYTHONPATH=`pwd` %{__python2} ./tools/display-maxcanon.py
 py.test-2 --verbose
 
 pushd %{py3dir}
+  %{__python3} ./tools/display-sighandlers.py
+  %{__python3} ./tools/display-terminalinfo.py
+  PYTHONPATH=`pwd` %{__python3} ./tools/display-maxcanon.py
   py.test-3 --verbose
 popd
 
@@ -136,6 +133,9 @@ popd
 %{python3_sitelib}/%{modname}*
 
 %changelog
+* Tue Oct 06 2015 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 4.0.1-1
+- Update to 4.0.1
+
 * Mon Oct 05 2015 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 4.0-1
 - Update to 4.0
 - Follow modern RPM Packaging guidelines
