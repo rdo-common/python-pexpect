@@ -11,7 +11,12 @@ Source1:        coveragerc
 Source2:        https://raw.githubusercontent.com/pexpect/pexpect/master/tools/display-sighandlers.py
 Source3:        https://raw.githubusercontent.com/pexpect/pexpect/master/tools/display-terminalinfo.py
 
+# https://github.com/pexpect/pexpect/pull/274
+Patch0:         0001-Encode-command-line-args-for-unicode-mode-spawn.patch
+Patch1:         pexpect-4.0-disable-some-tests.patch
+
 BuildArch:	noarch
+BuildRequires:  git-core
 Provides:	pexpect = %{version}-%{release}
 Obsoletes:	pexpect <= 2.3-20
 
@@ -75,7 +80,7 @@ compiled.  It should work on any platform that supports the standard Python
 pty module.
 
 %prep
-%autosetup -n %{modname}-%{version}
+%autosetup -n %{modname}-%{version} -S git
 sed -i -e 1i"# -*- encoding: utf-8 -*-" setup.py
 cp -p %{SOURCE1} .coveragerc
 rm -rf tools/
@@ -109,6 +114,8 @@ pushd %{py3dir}
 popd
 
 %check
+export PYTHONIOENCODING=UTF-8
+export LC_ALL="en_US.UTF-8"
 ./tools/display-sighandlers.py
 ./tools/display-terminalinfo.py
 
