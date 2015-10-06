@@ -1,28 +1,17 @@
-%if 0%{?fedora} > 15
-%global with_python3 1
-%else
-%{!?python_sitelib: %global python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print (get_python_lib())")}
-%endif
-
-#global relcand rc3
+%global modname pexpect
 
 Summary:	Unicode-aware Pure Python Expect-like module
-Name:		python-pexpect
-Version:	3.1
-Release:	4%{?dist}
+Name:		python-%{modname}
+Version:	4.0
+Release:	1%{?dist}
 License:	MIT
-Group:		Development/Languages
-URL:		https://github.com/pexpect/pexpect
-Source0:	https://github.com/pexpect/pexpect/releases/download/%{version}%{?relcand}/pexpect-%{version}%{?relcand}.tar.gz
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+URL:		https://github.com/%{modname}/%{modname}
+Source0:	https://pypi.python.org/packages/source/p/%{modname}/%{modname}-%{version}.tar.gz
+Source1:        coveragerc
 
 BuildArch:	noarch
-BuildRequires:	python2-devel python-nose ed
-%if 0%{?with_python3}
-BuildRequires:	python3-devel python3-nose
 Provides:	pexpect = %{version}-%{release}
 Obsoletes:	pexpect <= 2.3-20
-%endif # if with_python3
 
 %description
 Pexpect is a pure Python module for spawning child applications; controlling
@@ -39,10 +28,33 @@ does not require TCL or Expect nor does it require C extensions to be
 compiled.  It should work on any platform that supports the standard Python
 pty module.
 
-%if 0%{?with_python3}
+%package -n python2-pexpect
+Summary:	Unicode-aware Pure Python Expect-like module for Python 2
+BuildRequires:	python2-devel
+BuildRequires:  python2-pytest python-ptyprocess
+Requires:       python-ptyprocess
+
+%description -n python2-pexpect
+Pexpect is a pure Python module for spawning child applications; controlling
+them; and responding to expected patterns in their output. Pexpect works like
+Don Libes' Expect. Pexpect allows your script to spawn a child application and
+control it as if a human were typing commands. This package contains the
+python2 version of this module.
+
+Pexpect can be used for automating interactive applications such as ssh, ftp,
+passwd, telnet, etc. It can be used to automate setup scripts for duplicating
+software package installations on different servers. And it can be used for
+automated software testing. Pexpect is in the spirit of Don Libes' Expect, but
+Pexpect is pure Python. Unlike other Expect-like modules for Python, Pexpect
+does not require TCL or Expect nor does it require C extensions to be
+compiled.  It should work on any platform that supports the standard Python
+pty module.
+
 %package -n python3-pexpect
 Summary:	Unicode-aware Pure Python Expect-like module for Python 3
-Group:		Development/Languages
+BuildRequires:	python3-devel
+BuildRequires:  python3-pytest python3-ptyprocess
+Requires:       python3-ptyprocess
 
 %description -n python3-pexpect
 Pexpect is a pure Python module for spawning child applications; controlling
@@ -59,84 +71,60 @@ Pexpect is pure Python. Unlike other Expect-like modules for Python, Pexpect
 does not require TCL or Expect nor does it require C extensions to be
 compiled.  It should work on any platform that supports the standard Python
 pty module.
-%endif # with_python3
 
 %prep
-%setup -q -n pexpect-%{version}%{?relcand}
-
+%autosetup -n %{modname}-%{version}
+sed -i -e 1i"# -*- encoding: utf-8 -*-" setup.py
+cp -p %{SOURCE1} .coveragerc
 #sed -i "s/0.1/10.0/g" tests/test_misc.py
 
-%if 0%{?with_python3}
 rm -rf %{py3dir}
 cp -a . %{py3dir}
 find %{py3dir} -name '*.py' | xargs sed -i '1s|^#!python|#!%{__python3}|'
-%endif # with_python3
 
 %build
-%{__python} setup.py build
+%py2_build
 
-%if 0%{?with_python3}
 pushd %{py3dir}
-%{__python3} setup.py build
+  %py3_build
 popd
-%endif # with_python3
-
-%check
-. ./test.env
-./tools/testall.py
-
-%if 0%{?with_python3}
-pushd %{py3dir}
-    . ./test.env
-    %{_bindir}/python3 ./tools/testall.py
-popd
-%endif # with_python3
 
 %install
-rm -rf %{buildroot}
+%py2_install
+rm -rf ${buildroot}%{python2_sitelib}/setuptools/tests
+# Correct some permissions
+find examples -type f -exec chmod a-x \{\} \;
+rm -f %{buildroot}%{python2_sitelib}/%{modname}/async.py
 
-%if 0%{?with_python3}
 pushd %{py3dir}
-%{__python3} setup.py install --skip-build \
-    --root %{buildroot} --install-lib %{python3_sitelib}
-
-# Correct some permissions
-find examples -type f -exec chmod a-x \{\} \;
-
-rm -rf %{buildroot}%{python3_sitelib}/pexpect/tests
+  %py3_install
+  # Correct some permissions
+  find examples -type f -exec chmod a-x \{\} \;
+  rm -rf %{buildroot}%{python3_sitelib}/pexpect/tests
 popd
-%endif # with_python3
 
-%{__python} setup.py install --skip-build \
-    --root %{buildroot} --install-lib %{python_sitelib}
+%check
+py.test-2 --verbose
 
-rm -rf ${buildroot}%{python_sitelib}/setuptools/tests
-
-# Correct some permissions
-find examples -type f -exec chmod a-x \{\} \;
-
-%clean
-rm -rf %{buildroot}
+pushd %{py3dir}
+  py.test-3 --verbose
+popd
 
 %files
-%defattr(-,root,root)
-%doc doc examples LICENSE
-%{python_sitelib}/*.py*
-%{python_sitelib}/pexpect/
-%{python_sitelib}/pexpect-%{version}%{?relcand}-py?.?.egg-info
-%exclude %{python_sitelib}/pexpect/tests/
+%license LICENSE
+%doc doc examples
+%{python2_sitelib}/%{modname}*
 
-%if 0%{?with_python3}
 %files -n python3-pexpect
-%doc doc examples LICENSE
-%{python3_sitelib}/*.py
-%{python3_sitelib}/__pycache__/*
-%{python3_sitelib}/pexpect/
-%{python3_sitelib}/pexpect-%{version}%{?relcand}-py?.?.egg-info
-%exclude %{python3_sitelib}/pexpect/tests/
-%endif # with_python3
+%license LICENSE
+%doc doc examples
+%{python3_sitelib}/%{modname}*
 
 %changelog
+* Mon Oct 05 2015 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 4.0-1
+- Update to 4.0
+- Follow modern RPM Packaging guidelines
+
 * Thu Jun 18 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.1-4
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_23_Mass_Rebuild
 
