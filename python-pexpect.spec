@@ -3,7 +3,7 @@
 Summary:	Unicode-aware Pure Python Expect-like module
 Name:		python-%{modname}
 Version:	4.0.1
-Release:	1%{?dist}
+Release:	2%{?dist}
 License:	MIT
 URL:		https://github.com/%{modname}/%{modname}
 Source0:	https://github.com/%{modname}/%{modname}/archive/%{version}/%{modname}-%{version}.tar.gz
@@ -32,11 +32,12 @@ does not require TCL or Expect nor does it require C extensions to be
 compiled.  It should work on any platform that supports the standard Python
 pty module.
 
-%package -n python2-pexpect
+%package -n python2-%{modname}
 Summary:	Unicode-aware Pure Python Expect-like module for Python 2
 BuildRequires:	python2-devel
 BuildRequires:  python2-pytest python-ptyprocess
 Requires:       python-ptyprocess
+%{?python_provide:%python_provide python2-%{modname}}
 
 %description -n python2-pexpect
 Pexpect is a pure Python module for spawning child applications; controlling
@@ -54,11 +55,12 @@ does not require TCL or Expect nor does it require C extensions to be
 compiled.  It should work on any platform that supports the standard Python
 pty module.
 
-%package -n python3-pexpect
+%package -n python3-%{modname}
 Summary:	Unicode-aware Pure Python Expect-like module for Python 3
 BuildRequires:	python3-devel
 BuildRequires:  python3-pytest python3-ptyprocess
 Requires:       python3-ptyprocess
+%{?python_provide:%python_provide python3-%{modname}}
 
 %description -n python3-pexpect
 Pexpect is a pure Python module for spawning child applications; controlling
@@ -122,17 +124,20 @@ pushd %{py3dir}
   py.test-3 --verbose
 popd
 
-%files
+%files -n python2-%{modname}
 %license LICENSE
 %doc doc examples
 %{python2_sitelib}/%{modname}*
 
-%files -n python3-pexpect
+%files -n python3-%{modname}
 %license LICENSE
 %doc doc examples
 %{python3_sitelib}/%{modname}*
 
 %changelog
+* Thu Oct 08 2015 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 4.0.1-2
+- Fix RPM macroses
+
 * Tue Oct 06 2015 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 4.0.1-1
 - Update to 4.0.1
 
