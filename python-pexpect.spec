@@ -3,12 +3,12 @@
 Summary:	Unicode-aware Pure Python Expect-like module
 Name:		python-%{modname}
 Version:	4.0.1
-Release:	2%{?dist}
+Release:	3%{?dist}
 License:	MIT
 URL:		https://github.com/%{modname}/%{modname}
 Source0:	https://github.com/%{modname}/%{modname}/archive/%{version}/%{modname}-%{version}.tar.gz
 
-Patch0:         pexpect-4.0.1-disable-some-tests.patch
+Patch0:         0001-Stop-asyncio-listening-to-pty-once-we-ve-found-what-.patch
 Patch1:         0001-disable-max-canon-tests-retain-file-contents.patch
 Patch2:         0002-2-new-tools-display-fpathconf.maxcanon-.py.patch
 
@@ -135,6 +135,9 @@ popd
 %{python3_sitelib}/%{modname}*
 
 %changelog
+* Tue Oct 13 2015 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 4.0.1-3
+- Fix asyncio issue (3.4.3+)
+
 * Thu Oct 08 2015 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 4.0.1-2
 - Fix RPM macroses
 
