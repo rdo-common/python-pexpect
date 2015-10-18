@@ -3,7 +3,7 @@
 Summary:	Unicode-aware Pure Python Expect-like module
 Name:		python-%{modname}
 Version:	4.0.1
-Release:	3%{?dist}
+Release:	4%{?dist}
 License:	MIT
 URL:		https://github.com/%{modname}/%{modname}
 Source0:	https://github.com/%{modname}/%{modname}/archive/%{version}/%{modname}-%{version}.tar.gz
@@ -14,8 +14,6 @@ Patch2:         0002-2-new-tools-display-fpathconf.maxcanon-.py.patch
 
 BuildArch:	noarch
 BuildRequires:  git-core
-Provides:	pexpect = %{version}-%{release}
-Obsoletes:	pexpect <= 2.3-20
 
 %description
 Pexpect is a pure Python module for spawning child applications; controlling
@@ -37,6 +35,8 @@ Summary:	Unicode-aware Pure Python Expect-like module for Python 2
 BuildRequires:	python2-devel
 BuildRequires:  python2-pytest python-ptyprocess
 Requires:       python-ptyprocess
+Provides:	pexpect = %{version}-%{release}
+Obsoletes:	pexpect <= 2.3-20
 %{?python_provide:%python_provide python2-%{modname}}
 
 %description -n python2-pexpect
@@ -135,6 +135,9 @@ popd
 %{python3_sitelib}/%{modname}*
 
 %changelog
+* Sun Oct 18 2015 Kalev Lember <klember@redhat.com> - 4.0.1-4
+- Move pexpect provides to the right subpackage
+
 * Tue Oct 13 2015 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 4.0.1-3
 - Fix asyncio issue (3.4.3+)
 
