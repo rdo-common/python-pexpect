@@ -3,7 +3,7 @@
 Summary:	Unicode-aware Pure Python Expect-like module
 Name:		python-%{modname}
 Version:	4.0.1
-Release:	4%{?dist}
+Release:	5%{?dist}
 License:	MIT
 URL:		https://github.com/%{modname}/%{modname}
 Source0:	https://github.com/%{modname}/%{modname}/archive/%{version}/%{modname}-%{version}.tar.gz
@@ -135,6 +135,9 @@ popd
 %{python3_sitelib}/%{modname}*
 
 %changelog
+* Tue Nov 10 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 4.0.1-5
+- Rebuilt for https://fedoraproject.org/wiki/Changes/python3.5
+
 * Sun Oct 18 2015 Kalev Lember <klember@redhat.com> - 4.0.1-4
 - Move pexpect provides to the right subpackage
 
