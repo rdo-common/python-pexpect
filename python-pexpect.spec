@@ -1,19 +1,15 @@
 %global modname pexpect
 
-Summary:	Unicode-aware Pure Python Expect-like module
-Name:		python-%{modname}
-Version:	4.0.1
-Release:	6%{?dist}
-License:	MIT
-URL:		https://github.com/%{modname}/%{modname}
-Source0:	https://github.com/%{modname}/%{modname}/archive/%{version}/%{modname}-%{version}.tar.gz
+Name:           python-%{modname}
+Summary:        Unicode-aware Pure Python Expect-like module
+Version:        4.1.0
+Release:        1%{?dist}
 
-Patch0:         0001-Stop-asyncio-listening-to-pty-once-we-ve-found-what-.patch
-Patch1:         0001-disable-max-canon-tests-retain-file-contents.patch
-Patch2:         0002-2-new-tools-display-fpathconf.maxcanon-.py.patch
+License:        MIT
+URL:            https://github.com/%{modname}/%{modname}
+Source0:        %{url}/archive/%{version}/%{modname}-%{version}.tar.gz
 
-BuildArch:	noarch
-BuildRequires:  git-core
+BuildArch:      noarch
 
 %description
 Pexpect is a pure Python module for spawning child applications; controlling
@@ -31,13 +27,14 @@ compiled.  It should work on any platform that supports the standard Python
 pty module.
 
 %package -n python2-%{modname}
-Summary:	Unicode-aware Pure Python Expect-like module for Python 2
-BuildRequires:	python2-devel
-BuildRequires:  python2-pytest python-ptyprocess
-Requires:       python-ptyprocess
-Provides:	pexpect = %{version}-%{release}
-Obsoletes:	pexpect <= 2.3-20
+Summary:        %{summary}
 %{?python_provide:%python_provide python2-%{modname}}
+BuildRequires:  python2-devel
+BuildRequires:  python2-pytest
+BuildRequires:  python2-ptyprocess
+Requires:       python2-ptyprocess
+Provides:       pexpect = %{version}-%{release}
+Obsoletes:      pexpect <= 2.3-20
 
 %description -n python2-pexpect
 Pexpect is a pure Python module for spawning child applications; controlling
@@ -56,13 +53,14 @@ compiled.  It should work on any platform that supports the standard Python
 pty module.
 
 %package -n python3-%{modname}
-Summary:	Unicode-aware Pure Python Expect-like module for Python 3
-BuildRequires:	python3-devel
-BuildRequires:  python3-pytest python3-ptyprocess
-Requires:       python3-ptyprocess
+Summary:        %{summary}
 %{?python_provide:%python_provide python3-%{modname}}
+BuildRequires:  python3-devel
+BuildRequires:  python3-pytest
+BuildRequires:  python3-ptyprocess
+Requires:       python3-ptyprocess
 
-%description -n python3-pexpect
+%description -n python3-%{modname}
 Pexpect is a pure Python module for spawning child applications; controlling
 them; and responding to expected patterns in their output. Pexpect works like
 Don Libes' Expect. Pexpect allows your script to spawn a child application and
@@ -79,32 +77,34 @@ compiled.  It should work on any platform that supports the standard Python
 pty module.
 
 %prep
-%autosetup -n %{modname}-%{version} -S git
-chmod +x ./tools/*
-#sed -i "s/0.1/10.0/g" tests/test_misc.py
+%autosetup -c
+mv %{modname}-%{version} python2
+chmod +x python2/tools/*
+find python2/examples -type f | xargs chmod a-x
+cp -pr python2 python3
 
-rm -rf %{py3dir}
-cp -a . %{py3dir}
-find %{py3dir} -name '*.py' | xargs sed -i '1s|^#!python|#!%{__python3}|'
+find python2 -type f -name '*.py' | xargs sed -i '1s|^#!.*|#!%{__python2}|'
+find python3 -type f -name '*.py' | xargs sed -i '1s|^#!.*|#!%{__python3}|'
 
 %build
-%py2_build
+pushd python2
+  %py2_build
+popd
 
-pushd %{py3dir}
+pushd python3
   %py3_build
 popd
 
 %install
-%py2_install
-rm -rf ${buildroot}%{python2_sitelib}/setuptools/tests
-# Correct some permissions
-find examples -type f -exec chmod a-x \{\} \;
-rm -f %{buildroot}%{python2_sitelib}/%{modname}/async.py
+pushd python2
+  %py2_install
+  rm -rf ${buildroot}%{python2_sitelib}/setuptools/tests
+  # Drop asyncio stuff from py2
+  rm -f %{buildroot}%{python2_sitelib}/%{modname}/async.py
+popd
 
-pushd %{py3dir}
+pushd python3
   %py3_install
-  # Correct some permissions
-  find examples -type f -exec chmod a-x \{\} \;
   rm -rf %{buildroot}%{python3_sitelib}/pexpect/tests
 popd
 
@@ -112,29 +112,37 @@ popd
 export PYTHONIOENCODING=UTF-8
 export LC_ALL="en_US.UTF-8"
 
-%{__python2} ./tools/display-sighandlers.py
-%{__python2} ./tools/display-terminalinfo.py
-PYTHONPATH=`pwd` %{__python2} ./tools/display-maxcanon.py
-py.test-2 --verbose
+pushd python2
+  %{__python2} ./tools/display-sighandlers.py
+  %{__python2} ./tools/display-terminalinfo.py
+  PYTHONPATH=%{buildroot}%{python2_sitelib} %{__python2} ./tools/display-maxcanon.py
+  py.test-2 --verbose
+popd
 
-pushd %{py3dir}
+pushd python3
   %{__python3} ./tools/display-sighandlers.py
   %{__python3} ./tools/display-terminalinfo.py
-  PYTHONPATH=`pwd` %{__python3} ./tools/display-maxcanon.py
+  PYTHONPATH=%{buildroot}%{python3_sitelib} %{__python3} ./tools/display-maxcanon.py
   py.test-3 --verbose
 popd
 
 %files -n python2-%{modname}
-%license LICENSE
-%doc doc examples
-%{python2_sitelib}/%{modname}*
+%license python2/LICENSE
+%doc python2/doc python2/examples
+%{python2_sitelib}/%{modname}/
+%{python2_sitelib}/%{modname}-*.egg-info
 
 %files -n python3-%{modname}
-%license LICENSE
-%doc doc examples
-%{python3_sitelib}/%{modname}*
+%license python3/LICENSE
+%doc python3/doc python3/examples
+%{python3_sitelib}/%{modname}/
+%{python3_sitelib}/%{modname}-*.egg-info
 
 %changelog
+* Thu Jun 30 2016 Igor Gnatenko <ignatenko@redhat.com> - 4.1.0-1
+- Update to 4.1.0
+- Improve packaging
+
 * Thu Feb 04 2016 Fedora Release Engineering <releng@fedoraproject.org> - 4.0.1-6
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_24_Mass_Rebuild
 
