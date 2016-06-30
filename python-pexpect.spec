@@ -9,6 +9,9 @@ License:        MIT
 URL:            https://github.com/%{modname}/%{modname}
 Source0:        %{url}/archive/%{version}/%{modname}-%{version}.tar.gz
 
+BuildRequires:  /usr/bin/man
+BuildRequires:  coreutils
+
 BuildArch:      noarch
 
 %description
