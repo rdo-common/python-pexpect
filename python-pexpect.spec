@@ -103,7 +103,7 @@ pushd python2
   %py2_install
   rm -rf ${buildroot}%{python2_sitelib}/setuptools/tests
   # Drop asyncio stuff from py2
-  rm -f %{buildroot}%{python2_sitelib}/%{modname}/async.py
+  rm -f %{buildroot}%{python2_sitelib}/%{modname}/_async.py
 popd
 
 pushd python3
