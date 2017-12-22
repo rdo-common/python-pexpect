@@ -2,7 +2,7 @@
 
 Name:           python-%{modname}
 Summary:        Unicode-aware Pure Python Expect-like module
-Version:        4.3
+Version:        4.3.1
 Release:        1%{?dist}
 
 License:        MIT
@@ -142,6 +142,9 @@ popd
 %{python3_sitelib}/%{modname}-*.egg-info
 
 %changelog
+* Fri Dec 22 2017 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 4.3.1-1
+- Update to 4.3.1
+
 * Fri Nov 10 2017 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 4.3-1
 - Update to 4.3
 
