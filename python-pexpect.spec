@@ -1,3 +1,5 @@
+%bcond_with check
+
 %global modname pexpect
 
 Name:           python-%{modname}
@@ -111,6 +113,7 @@ pushd python3
   rm -rf %{buildroot}%{python3_sitelib}/pexpect/tests
 popd
 
+%if %{with check}
 %check
 export PYTHONIOENCODING=UTF-8
 export LC_ALL="en_US.UTF-8"
@@ -128,6 +131,7 @@ pushd python3
   PYTHONPATH=%{buildroot}%{python3_sitelib} %{__python3} ./tools/display-maxcanon.py
   py.test-3 --verbose
 popd
+%endif
 
 %files -n python2-%{modname}
 %license python2/LICENSE
