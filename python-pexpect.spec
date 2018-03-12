@@ -4,7 +4,7 @@
 
 Name:           python-%{modname}
 Summary:        Unicode-aware Pure Python Expect-like module
-Version:        4.4.0
+Version:        4.4
 Release:        1%{?dist}
 
 License:        MIT
@@ -12,7 +12,6 @@ URL:            https://github.com/pexpect/pexpect
 Source0:        %{url}/archive/%{version}/%{modname}-%{version}.tar.gz
 
 BuildRequires:  %{_bindir}/man
-BuildRequires:  coreutils
 
 BuildArch:      noarch
 
