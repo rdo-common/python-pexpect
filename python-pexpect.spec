@@ -4,7 +4,7 @@
 
 Name:           python-%{modname}
 Summary:        Unicode-aware Pure Python Expect-like module
-Version:        4.5.0
+Version:        4.5
 Release:        1%{?dist}
 
 License:        MIT
