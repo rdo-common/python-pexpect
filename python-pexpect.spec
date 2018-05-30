@@ -2,6 +2,10 @@
 
 %global modname pexpect
 
+%if 0%{?fedora}
+%global with_python3 1
+%endif
+
 Name:           python-%{modname}
 Summary:        Unicode-aware Pure Python Expect-like module
 Version:        4.6
@@ -56,6 +60,7 @@ does not require TCL or Expect nor does it require C extensions to be
 compiled.  It should work on any platform that supports the standard Python
 pty module.
 
+%if 0%{?with_python3}
 %package -n python3-%{modname}
 Summary:        %{summary}
 %{?python_provide:%python_provide python3-%{modname}}
@@ -79,6 +84,7 @@ Pexpect is pure Python. Unlike other Expect-like modules for Python, Pexpect
 does not require TCL or Expect nor does it require C extensions to be
 compiled.  It should work on any platform that supports the standard Python
 pty module.
+%endif
 
 %prep
 %autosetup -c
@@ -88,16 +94,20 @@ find python2/examples -type f | xargs chmod a-x
 cp -pr python2 python3
 
 find python2 -type f -name '*.py' | xargs sed -i '1s|^#!.*|#!%{__python2}|'
+%if 0%{?with_python3}
 find python3 -type f -name '*.py' | xargs sed -i '1s|^#!.*|#!%{__python3}|'
+%endif
 
 %build
 pushd python2
   %py2_build
 popd
 
+%if 0%{?with_python3}
 pushd python3
   %py3_build
 popd
+%endif
 
 %install
 pushd python2
@@ -107,10 +117,12 @@ pushd python2
   rm -f %{buildroot}%{python2_sitelib}/%{modname}/_async.py
 popd
 
+%if 0%{?with_python3}
 pushd python3
   %py3_install
   rm -rf %{buildroot}%{python3_sitelib}/pexpect/tests
 popd
+%endif
 
 %if %{with check}
 %check
@@ -124,12 +136,14 @@ pushd python2
   py.test-2 --verbose
 popd
 
+%if 0%{?with_python3}
 pushd python3
   %{__python3} ./tools/display-sighandlers.py
   %{__python3} ./tools/display-terminalinfo.py
   PYTHONPATH=%{buildroot}%{python3_sitelib} %{__python3} ./tools/display-maxcanon.py
   py.test-3 --verbose
 popd
+%endif
 %endif
 
 %files -n python2-%{modname}
@@ -138,11 +152,13 @@ popd
 %{python2_sitelib}/%{modname}/
 %{python2_sitelib}/%{modname}-*.egg-info
 
+%if 0%{?with_python3}
 %files -n python3-%{modname}
 %license python3/LICENSE
 %doc python3/doc python3/examples
 %{python3_sitelib}/%{modname}/
 %{python3_sitelib}/%{modname}-*.egg-info
+%endif
 
 %changelog
 * Wed Jul 25 2018 Dan Radez <dradez@redhat.com> - 4.6-1
