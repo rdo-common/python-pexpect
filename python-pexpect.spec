@@ -58,10 +58,11 @@ pty module.
 
 %package -n python3-%{modname}
 Summary:        %{summary}
-BuildRequires:  python34-devel
-BuildRequires:  python34-pytest
-BuildRequires:  python34-ptyprocess
-Requires:       python34-ptyprocess
+%{?python_provide:%python_provide python3-%{modname}}
+BuildRequires:  python3-devel
+BuildRequires:  python3-pytest
+BuildRequires:  python3-ptyprocess
+Requires:       python3-ptyprocess
 
 %description -n python3-%{modname}
 Pexpect is a pure Python module for spawning child applications; controlling
