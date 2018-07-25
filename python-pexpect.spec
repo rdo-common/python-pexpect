@@ -4,8 +4,8 @@
 
 Name:           python-%{modname}
 Summary:        Unicode-aware Pure Python Expect-like module
-Version:        4.5
-Release:        3%{?dist}
+Version:        4.6
+Release:        1%{?dist}
 
 License:        MIT
 URL:            https://github.com/pexpect/pexpect
@@ -145,6 +145,9 @@ popd
 %{python3_sitelib}/%{modname}-*.egg-info
 
 %changelog
+* Wed Jul 25 2018 Dan Radez <dradez@redhat.com> - 4.6-1
+- update to 4.6
+
 * Sat Jul 14 2018 Fedora Release Engineering <releng@fedoraproject.org> - 4.5-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
 
